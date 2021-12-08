@@ -1,27 +1,21 @@
 <template>
   <section>
-    <form @submit.prevent="onSubmit">
-      <h2 class="title">
-        Регистрация
-      </h2>
+    <form @submit.prevent="HandleSubmit">
+      <h2>Регистрация</h2>
       <input
         v-model="email"
         type="text"
         placeholder="Введите Ваш email"
-        class="input"
       >
       <input
         v-model="password"
         type="password"
         placeholder="Введите Ваш пароль"
-        class="input"
       >
       <button
         type="submit"
       >
-        <span>
-          <span class="text">Зарегистрироваться</span>
-        </span>
+        Зарегистрироваться
       </button>
     </form>
   </section>
@@ -37,13 +31,13 @@ export default {
     }
   },
   methods: {
-    async onSubmit () {
-      await this.$store.dispatch('register', {
+    async HandleSubmit () {
+      await this.$store.dispatch('userAuth/SIGN_UP', {
         email: this.email,
         password: this.password
       })
-      if (this.$store.getters.isAuthenticated) {
-        this.$router.push('/')
+      if (this.$store.getters['userAuth/isAuthenticated']) {
+        this.$router.push('/todo')
       }
     }
   }

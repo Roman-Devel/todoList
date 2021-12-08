@@ -1,93 +1,53 @@
 <template>
-  <section>
-    <nav>
-      <a href="#" @click.prevent="logout">
-        Logout
-      </a>
-    </nav>
-    <form @submit.prevent="onSubmit()">
-      <input
-        v-model="todo"
-        type="text"
-        placeholder="Введите заметку"
-      >
-      <button
-        type="submit"
-      >
-        <span>
-          <span class="text">Добавить</span>
-        </span>
-      </button>
-    </form>
-    <template v-if="todos">
-      <ul>
-        <li
-          v-for="toDo in todos"
-          :key="toDo.id"
+  <div>
+    <Register />
+    <section>
+      <form @submit.prevent="HandleSubmit">
+        <h2>Авторизация</h2>
+        <input
+          v-model="email"
+          type="text"
+          placeholder="Введите Ваш email"
         >
-          {{ toDo.title }}
-          <button
-            @click="remove(toDo.id)"
-          >
-            Удалить
-          </button>
-        </li>
-      </ul>
-    </template>
-  </section>
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Введите Ваш пароль"
+        >
+        <button
+          type="submit"
+        >
+          Авторизоваться
+        </button>
+      </form>
+    </section>
+  </div>
 </template>
 
 <script>
 export default {
   data () {
     return {
-      todos: [],
-      todo: ''
+      email: '',
+      password: ''
     }
   },
-  fetch ({ store, redirect }) {
-    if (!store.getters.isAuthenticated) {
-      redirect('/login')
+  mounted () {
+    if (sessionStorage.getItem('token') !== null) {
+      this.$store.commit('userAuth/SET_TOKEN', sessionStorage.getItem('token'))
+      this.$router.push('/todo')
     }
-  },
-  async mounted () {
-    this.todos = await this.$store.dispatch('load')
   },
   methods: {
-    async onSubmit () {
-      const data = await this.$store.dispatch('add', this.todo)
-      this.todos.push({
-        id: data,
-        title: this.todo
+    async HandleSubmit () {
+      await this.$store.dispatch('userAuth/SIGN_IN', {
+        email: this.email,
+        password: this.password
       })
-      this.todo = ''
-    },
-    async remove (id) {
-      await this.$store.dispatch('remove', id)
-      this.todos = this.todos.filter(item => item.id !== id)
-    },
-    logout () {
-      this.$store.commit('logout')
-      this.$router.push('/login')
+      if (this.$store.getters['userAuth/isAuthenticated']) {
+        this.$router.push('/todo')
+      }
     }
   }
 }
 </script>
-
-<style>
-  nav {
-    margin-bottom: 50px;
-    font-size: 25px;
-    border: 1px solid;
-    text-align: center;
-  }
-  ul {
-    margin-top: 1rem;
-  }
-  li {
-    padding: 5px;
-    display: flex;
-    justify-content: space-between;
-    border: 1px solid black;
-  }
-</style>
